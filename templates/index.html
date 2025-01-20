@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=error" />
+    <link href="https://fonts.googleapis.com/css2?family=Delius:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <div class="nav-bar">
+          <div class="logo">
+            <h2>Med<span>Cure</span>AI</h2>
+          </div>  
+            <div class="disclaimer">
+                <div class="box">
+                   <img src="{{ url_for('static', filename='images/error_24dp_E33122_FILL0_wght400_GRAD0_opsz24.png') }}" alt="">  <p>MedCureAI can be <b>WRONG</b>. Consult a doctor for accurate diagnosis and treatment.</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="answers">
+          <div class="ai-intro" id="aiintro">
+            <h1>How can I assist with your <span >diagnosis?</span></h1>
+            <br>
+            <h3><span class="element"></span></h3>
+          </div>
+          <div class="user-img">
+            <img id="preview" src="#" alt="Image Preview" style="display: none; margin-top: 10px;max-width: 200px;
+            margin-right: 20px; border-radius:15px;box-shadow:0 0 6px rgba(0,0,0,0.2)">
+            <p id="text-preview" style="display: none; margin-top: 10px;
+            margin-right: 20px; border-radius:12px;box-shadow:0 0 6px rgba(0,0,0,0.2);max-width:500px;white-space: normal;
+            word-wrap: break-word;word-break: break-word;float:right;padding:10px;font-size:15px;color:rgb(58, 58, 58);"></p>
+          </div> 
+            <div id="prediction-result" style="display:none;margin-top: 20px;padding:20px;">
+              <span id="med-logo" style="font-size:14px;color:#1389ff;background-color:white;padding:5px 6px;border-radius:100%;box-shadow:0 0 6px rgba(0,0,0,0.2);display:none;"><b>M</b></span>
+              <p id="prediction-message" style="color:rgb(58, 58, 58);font-size:16px;line-height:25px;margin-top:10px;"></p>
+              <h3 class ="pred-heading" style="display:none;margin-top:10px;">Here is the Bright Section Marks Significant Feature.</h3>
+              <img id="saliencyMap" src="" alt="Saliency Map" style="display: none;max-width: 250px; margin:20px 0px;border-radius:15px;box-shadow:0 0 6px rgba(0,0,0,0.2);">
+              <h3 class ="pred-heading" style="display:none;margin-top:10px;">Disease Description.</h3>
+              <div id="disease-ai" style="color:rgb(58, 58, 58);line-height:25px;margin-top:10px;"></div>
+              <h3 class ="pred-heading" style="display:none;margin-top:10px;">Suggested Treatments and Doctor Advice for Better Health.</h3>
+              <div id="treatment-ai" style="color:rgb(58, 58, 58);line-height:25px;margin-top:10px;"></div>
+              <div id="ai_advice" style="display:none;color:rgb(58, 58, 58);line-height:25px;margin-top:10px;"></div>
+          </div>
+          
+
+    </div>
+  <div class="input-box">
+    <div class="xray">
+      <form enctype="multipart/form-data" id="uploadForm" onsubmit="return false;">
+        <div class="upload" title="X-Ray Model">
+        
+          <label for="fileupload">+</label>
+          <input type="file" name="file" id="fileupload" style="display: none;" onchange="updateFileName()" accept="image/*" required>
+          <span id="fileName" style="display: none;"></span>
+          <button type="submit" class="btn" onclick="xray_model()"><img src="{{ url_for('static', filename='images/send_24dp_FFFFFF_FILL1_wght400_GRAD0_opsz24.png') }}" alt=""></button>
+       
+         
+        </div>
+      </form> 
+      
+        <div class="text-upload" title="LSTM Model">
+          <form enctype="multipart/form-data" id="textuploadform" onsubmit="return false;">
+            <input type="text" name="text" id="text" placeholder="What symptoms are you experiencing?" required>
+          </form>
+            <button type="submit" class="btn" onclick="lstm_model()"><img src="{{ url_for('static', filename='images/send_24dp_FFFFFF_FILL1_wght400_GRAD0_opsz24.png') }}" alt=""></button>
+        </div>
+
+       </div>
+     
+       
+
+  </div>  
+
+    
+  
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <script>
+        var typed = new Typed('.element', {
+            strings: ['Analyzing chest X-rays for Signs of Pneumonia, Tuberculosis, and Covid Diseases','Classifying Brain Abnormalities from X-ray Images','AI-driven Symptom Analysis'],
+            typeSpeed: 20,
+            backSpeed :20,
+            loop : true
+          });
+
+          function updateFileName() {
+            var fileInput = document.getElementById('fileupload');
+            var fileName = fileInput.files[0] ? fileInput.files[0].name : 'No file chosen';
+            document.getElementById('fileName').textContent = fileName;
+            document.getElementById('fileName').style.display="inline";
+      
+
+        }
+       
+
+       
+
+      function xray_model(){
+        var fileInput = document.getElementById('fileupload');
+        if (!fileInput.files[0]) {
+         alert('Please upload a file before proceeding.');
+        return; // Stop execution if no file is selected
+        }
+        var ai_intro = document.getElementById('aiintro');
+      ai_intro.style.display = "none";
+      var text_preview = document.getElementById('text-preview');
+      text_preview.style.display = "none";
+      document.getElementById("med-logo").style.display="none";
+      document.getElementById("prediction-result").style.display = "none";
+      var predHeadings = document.getElementsByClassName("pred-heading");
+          for (var i = 0; i < predHeadings.length; i++) {
+         predHeadings[i].style.display = "none";
+              }
+      //var fileInput = document.getElementById('fileupload');
+      document.getElementById('ai_advice').style.display="none";
+      var preview = document.getElementById('preview');
+      preview.style.display="none";
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        setTimeout(() => {
+          preview.src = e.target.result; // Set the preview image source
+          preview.style.display = "block"; // Display the preview
+      }, 500);
+       
+      };
+      
+      if (fileInput.files[0]) {
+          reader.readAsDataURL(fileInput.files[0]);
+      } else {
+          preview.style.display = "none";
+      }
+
+      var formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    // Make the fetch request to send the file to the backend
+    fetch('/predict_xray', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())  // Parse the response as JSON
+    .then(data => {
+      if(data.message && !data.saliency_map){
+        setTimeout(()=>{
+          document.getElementById("med-logo").style.display="inline";
+          document.getElementById("prediction-result").style.display = "block";
+        document.getElementById("prediction-message").textContent = data.message;
+        var predHeadings = document.getElementsByClassName("pred-heading");
+          for (var i = 0; i < predHeadings.length; i++) {
+             predHeadings[i].style.display = "none";
+             }
+        var saliencyImage = document.getElementById('saliencyMap');
+        saliencyImage.style.display = "none";
+        },1000);
+        document.getElementById("disease-ai").innerHTML = "";
+        document.getElementById("treatment-ai").innerHTML = "";
+        
+      }
+         
+        
+        
+      else if (data.saliency_map && data.message && data.disease_ai &&  data.treatment_ai ) {
+      
+          document.getElementById("med-logo").style.display="inline";
+          document.getElementById("prediction-result").style.display = "block";
+          document.getElementById("disease-ai").style.display="block";
+         document.getElementById("treatment-ai").style.display="block";
+          var predHeadings = document.getElementsByClassName("pred-heading");
+           for (var i = 0; i < predHeadings.length; i++) {
+              predHeadings[i].style.display = "block";
+                }
+        document.getElementById("prediction-message").textContent = data.message;
+        document.getElementById("disease-ai").innerHTML = data.disease_ai;
+        document.getElementById("treatment-ai").innerHTML = data.treatment_ai;
+  
+        
+        var saliencyImage = document.getElementById('saliencyMap');
+            saliencyImage.src = data.saliency_map + "?timestamp=" + new Date().getTime();
+            saliencyImage.style.display = "block"; 
+
+      
+       
+        
+
+    }else{
+         document.getElementById("med-logo").style.display="none";
+          document.getElementById("prediction-result").style.display = "none";
+        document.getElementById("prediction-message").textContent = data.message;
+        var predHeadings = document.getElementsByClassName("pred-heading");
+        for (var i = 0; i < predHeadings.length; i++) {
+            predHeadings[i].style.display = "none";
+        }
+
+    }
+
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred while processing the request.");
+    });
+
+    }
+
+    function lstm_model(){
+      var user_input = document.getElementById("text").value.trim();
+      if (!user_input) {
+         alert('Please enter your symptoms before submitting.');
+         return; // Stop execution if no text is entered
+          }
+      var user_input = document.getElementById("text").value;
+      var ai_intro = document.getElementById('aiintro');
+      ai_intro.style.display = "none";
+
+      document.getElementById("med-logo").style.display="none";
+      document.getElementById("prediction-result").style.display = "none";
+      var predHeadings = document.getElementsByClassName("pred-heading");
+     for (var i = 0; i < predHeadings.length; i++) {
+      predHeadings[i].style.display = "none";
+         }
+      document.getElementById('saliencyMap').style.display="none";
+      document.getElementById("disease-ai").style.display="none";
+      document.getElementById("treatment-ai").style.display="none";
+      var text_preview = document.getElementById('text-preview');
+      text_preview.style.display = "none";
+      setTimeout(()=>{
+        text_preview.style.display = "block";
+        text_preview.textContent = user_input;
+      },500);
+      
+
+      var preview = document.getElementById('preview');
+      preview.style.display = "none";
+      var formDatatext = new FormData();
+      formDatatext.append("text", user_input);
+      fetch('/disease predict', {
+        method: 'POST',
+        body: formDatatext
+    })
+    .then(response => response.json())  // Parse the JSON response from Flask
+    .then(data => {
+        document.getElementById("med-logo").style.display="inline";
+        document.getElementById("prediction-result").style.display = "block";
+        document.getElementById('ai_advice').style.display="block";
+        document.getElementById("prediction-message").textContent = data.disease;
+        document.getElementById("ai_advice").innerHTML = data.ai_advice;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    }
+
+
+        
+          
+    </script>
+</body>
+</html>
