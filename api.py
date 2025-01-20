@@ -1,9 +1,7 @@
-# AIzaSyCAa0U_hQ-yJ81bskvOMCZUefu8rY0UG74
 import google.generativeai as genai
 
-
 # Configure the API key
-genai.configure(api_key="AIzaSyCAa0U_hQ-yJ81bskvOMCZUefu8rY0UG74")  # Replace <YOUR_API_KEY> with your actual API key
+genai.configure(api_key="YOUR_API_KEY")  # Replace <YOUR_API_KEY> with your actual API key
 
 # Create the generation configuration
 generation_config = {

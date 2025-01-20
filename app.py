@@ -25,7 +25,7 @@ import string
 import pickle
 
 import google.generativeai as genai
-genai.configure(api_key="AIzaSyCAa0U_hQ-yJ81bskvOMCZUefu8rY0UG74")
+genai.configure(api_key="YOUR_API_KEY")
 
 # Initializing the Flask web application
 app = Flask(__name__)
